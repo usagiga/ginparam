@@ -53,7 +53,7 @@ func main() {
 }
 ```
 
-If there's no `query` struct tag, no value in specified environment keys or field applied `query:"-"`, ginparam will ignore it.
+If there's no `query` struct tag, no value in a specified query parameter or field applied `query:"-"`, ginparam will ignore it.
 
 See also [example](./example) .
 
