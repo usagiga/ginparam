@@ -1,8 +1,7 @@
 package ginparam
 
 import (
-	"errors"
-	"fmt"
+	"golang.org/x/xerrors"
 	"reflect"
 	"strconv"
 	"strings"
@@ -31,8 +30,7 @@ func Read(ctx *gin.Context, out interface{}) (err error) {
 
 	// Now, is it struct?
 	if outKind != reflect.Struct {
-		errMsg := fmt.Sprintf("passed incompatible type(%s): `out` must be assignable struct", outKind)
-		return errors.New(errMsg)
+		return xerrors.Errorf("passed incompatible type(%s): `out` must be assignable struct", outKind)
 	}
 
 	// For all struct fields,
@@ -43,8 +41,7 @@ func Read(ctx *gin.Context, out interface{}) (err error) {
 
 		// Can set?
 		if !fieldVal.CanSet() {
-			errMsg := fmt.Sprintf("passed incompatible type(%s): `out`'s field(%s) must be assignable", fieldKind, fieldType.Name)
-			return errors.New(errMsg)
+			return xerrors.Errorf("passed incompatible type(%s): `out`'s field(%s) must be assignable", fieldKind, fieldType.Name)
 		}
 
 		// Get `query` struct tag
@@ -59,8 +56,7 @@ func Read(ctx *gin.Context, out interface{}) (err error) {
 		if fieldKind == reflect.Struct {
 			err = Read(ctx, fieldVal.Addr().Interface())
 			if err != nil {
-				errMsg := fmt.Sprintf("error raised in nested value: %s", err)
-				return errors.New(errMsg)
+				return xerrors.Errorf("error raised in nested value: %w", err)
 			}
 			continue
 		}
@@ -94,8 +90,7 @@ func Read(ctx *gin.Context, out interface{}) (err error) {
 				for _, v := range paramVals {
 					iv, err := strconv.Atoi(v)
 					if err != nil {
-						errMsg := fmt.Sprintf("can't cast int value: %s", err)
-						return errors.New(errMsg)
+						return xerrors.Errorf("can't cast int value: %w", err)
 					}
 					s = append(s, iv)
 				}
@@ -118,8 +113,7 @@ func Read(ctx *gin.Context, out interface{}) (err error) {
 		case reflect.Int:
 			newFieldVal, err := strconv.Atoi(paramVal)
 			if err != nil {
-				errMsg := fmt.Sprintf("can't cast int value: %s", err)
-				return errors.New(errMsg)
+				return xerrors.Errorf("can't cast int value: %s", err)
 			}
 
 			fieldVal.SetInt(int64(newFieldVal))
